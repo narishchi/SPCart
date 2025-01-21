@@ -12,52 +12,51 @@ namespace SPCart
 
         private void InitializeItems()
         {
-            // เพิ่มสินค้าเข้าไปใน Dictionary
+            // Add items to the Dictionary
             items.Add("Coffee", new Item { Name = "Coffee", Price = 75, Quantity = 0, IsChecked = false });
             items.Add("GreenTea", new Item { Name = "Green Tea", Price = 70, Quantity = 0, IsChecked = false });
             items.Add("Noodle", new Item { Name = "Noodle", Price = 60, Quantity = 0, IsChecked = false });
             items.Add("Pizza", new Item { Name = "Pizza", Price = 199, Quantity = 0, IsChecked = false });
 
-            // กำหนดค่าเริ่มต้นใน TextBox สำหรับราคาสินค้า
+            // Set default prices in the TextBox
             tbCoffeePrice.Text = items["Coffee"].Price.ToString("F2");
             tbGreenTeaPrice.Text = items["GreenTea"].Price.ToString("F2");
             tbNoodlePrice.Text = items["Noodle"].Price.ToString("F2");
             tbPizzaPrice.Text = items["Pizza"].Price.ToString("F2");
 
-            // ป้องกันการแก้ไขค่าในช่องราคา
+            // Make the price fields read-only
             tbCoffeePrice.ReadOnly = true;
             tbGreenTeaPrice.ReadOnly = true;
             tbNoodlePrice.ReadOnly = true;
             tbPizzaPrice.ReadOnly = true;
         }
 
-
         private void btcheck_out_Click_1(object sender, EventArgs e)
         {
             try
             {
-                // อ่านค่าและอัปเดตสินค้าใน Dictionary
+                // Read and update item quantities and checked status from the UI
                 UpdateItem("Coffee", tbCoffeeQuantity.Text, cbCoffee.Checked);
                 UpdateItem("GreenTea", tbGreenTeaQuantity.Text, cbGreenTea.Checked);
                 UpdateItem("Noodle", tbNoodleQuantity.Text, cbNoodle.Checked);
                 UpdateItem("Pizza", tbPizzaQuantity.Text, cbPizza.Checked);
 
-                // อ่านค่าเงินสดและส่วนลด
+                // Read cash input and discount percentages
                 double iCash = string.IsNullOrWhiteSpace(tbCash.Text) ? 0 : double.Parse(tbCash.Text);
                 double discountAll = string.IsNullOrWhiteSpace(tbDiscountAll.Text) ? 0 : double.Parse(tbDiscountAll.Text) / 100;
                 double discountDrinks = string.IsNullOrWhiteSpace(tbDiscountDrinks.Text) ? 0 : double.Parse(tbDiscountDrinks.Text) / 100;
                 double discountFood = string.IsNullOrWhiteSpace(tbDiscountFood.Text) ? 0 : double.Parse(tbDiscountFood.Text) / 100;
 
-                // คำนวณยอดรวมแยกตามประเภท
+                // Calculate total amounts by category
                 double drinksTotal = GetTotal(new[] { "Coffee", "GreenTea" });
                 double foodTotal = GetTotal(new[] { "Noodle", "Pizza" });
                 double iTotal = drinksTotal + foodTotal;
 
-                // คำนวณส่วนลด
+                // Apply discounts
                 double discountAmount = 0;
                 if (cbAll.Checked && discountAll > 0)
                 {
-                    discountAmount = iTotal * discountAll; // ส่วนลดสำหรับยอดรวมทั้งหมด
+                    discountAmount = iTotal * discountAll; // Discount applied to total amount
                     iTotal -= discountAmount;
                 }
                 else
@@ -74,23 +73,23 @@ namespace SPCart
                         discountAmount += foodDiscount;
                         foodTotal -= foodDiscount;
                     }
-                    iTotal = drinksTotal + foodTotal; // รวมยอดใหม่หลังลดราคา
+                    iTotal = drinksTotal + foodTotal; // Recalculate total after discounts
                 }
 
-                // คำนวณเงินทอน
+                // Calculate change
                 double iChange = iCash - iTotal;
 
-                // แสดงผลลัพธ์
+                // Display results
                 tbDiscountAmount.Text = discountAmount.ToString("F2");
                 tbTotal.Text = iTotal.ToString("F2");
                 tbChange.Text = iChange.ToString("F2");
 
-                // แจกแจงเงินทอน
+                // Display breakdown of change
                 DisplayChange(iChange);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("เกิดข้อผิดพลาดในการคำนวณ: " + ex.Message);
+                MessageBox.Show("An error occurred during calculation: " + ex.Message);
             }
         }
 
@@ -131,10 +130,9 @@ namespace SPCart
             }
         }
 
-
         private void btClear_Click(object sender, EventArgs e)
         {
-            // เคลียร์ข้อมูลสินค้า
+            // Reset item data
             foreach (var item in items.Values)
             {
                 item.Price = 0;
@@ -142,9 +140,7 @@ namespace SPCart
                 item.IsChecked = false;
             }
 
-            // เคลียร์ข้อมูล TextBox
-
-
+            // Clear UI fields
             tbTotal.Text = tbCash.Text = tbChange.Text = "";
             tbDiscountAll.Text = tbDiscountDrinks.Text = tbDiscountFood.Text = "0";
             tbDiscountAmount.Text = "0.00";
@@ -156,6 +152,5 @@ namespace SPCart
             cbNoodle.Checked = cbPizza.Checked = false;
             cbAll.Checked = cbBeverage.Checked = cbFood.Checked = false;
         }
-
     }
 }
